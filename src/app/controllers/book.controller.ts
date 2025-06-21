@@ -26,13 +26,11 @@ booksRoutes.get("/", async (req: Request, res: Response) => {
       limit = "10",
     } = req.query;
 
-    // Build filter object
     const query: any = {};
     if (filter) {
       query.genre = filter;
     }
 
-    // Build sort object
     const sortObj: any = {};
     sortObj[sortBy as string] = sort === "asc" ? 1 : -1;
 
@@ -50,4 +48,17 @@ booksRoutes.get("/", async (req: Request, res: Response) => {
       error,
     });
   }
+});
+
+//  get book by book id
+
+booksRoutes.get("/:bookId", async (req: Request, res: Response) => {
+  const bookId = req.params.bookId;
+  const book = await Book.findById(bookId);
+
+  res.status(201).json({
+    success: true,
+    message: "single book",
+    book,
+  });
 });
