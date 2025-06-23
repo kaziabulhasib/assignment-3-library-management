@@ -1,22 +1,33 @@
 import express, { Request, Response } from "express";
 import { Book } from "../models/book.model";
+import { handleError, AppError } from "../utils/errorHandleler";
 
 export const booksRoutes = express.Router();
 
-// post a book
+// Helper function to validate book ID
+const validateBookId = (bookId: string): void => {
+  if (!bookId.match(/^[0-9a-fA-F]{24}$/)) {
+    throw new AppError("Invalid book ID format", 400);
+  }
+};
+
+// POST /api/books - Create a new book
 booksRoutes.post("/", async (req: Request, res: Response) => {
-  const body = req.body;
+  try {
+    const body = req.body;
+    const book = await Book.create(body);
 
-  const book = await Book.create(body);
-
-  res.status(201).json({
-    success: true,
-    message: "Book created successfully",
-    book,
-  });
+    res.status(201).json({
+      success: true,
+      message: "Book created successfully",
+      data: book,
+    });
+  } catch (error) {
+    handleError(res, error);
+  }
 });
 
-// get all books with filtering, sorting, and limiting
+// GET /api/books - Get all books with filtering
 booksRoutes.get("/", async (req: Request, res: Response) => {
   try {
     const {
@@ -28,6 +39,18 @@ booksRoutes.get("/", async (req: Request, res: Response) => {
 
     const query: any = {};
     if (filter) {
+      if (
+        ![
+          "FICTION",
+          "NON_FICTION",
+          "SCIENCE",
+          "HISTORY",
+          "BIOGRAPHY",
+          "FANTASY",
+        ].includes(filter as string)
+      ) {
+        throw new AppError("Invalid genre filter", 400);
+      }
       query.genre = filter;
     }
 
@@ -42,50 +65,74 @@ booksRoutes.get("/", async (req: Request, res: Response) => {
       data: books,
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Failed to retrieve books",
-      error,
-    });
+    handleError(res, error);
   }
 });
 
-//  get single  book by book id
-
+// GET /api/books/:bookId - Get single book by ID
 booksRoutes.get("/:bookId", async (req: Request, res: Response) => {
-  const bookId = req.params.bookId;
-  const book = await Book.findById(bookId);
+  try {
+    const bookId = req.params.bookId;
+    validateBookId(bookId);
 
-  res.status(201).json({
-    success: true,
-    message: "single book",
-    book,
-  });
+    const book = await Book.findById(bookId);
+    if (!book) {
+      throw new AppError("Book not found", 404);
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Book retrieved successfully",
+      data: book,
+    });
+  } catch (error) {
+    handleError(res, error);
+  }
 });
 
-// update a book
-
+// PUT /api/books/:bookId - Update a book
 booksRoutes.put("/:bookId", async (req: Request, res: Response) => {
-  const bookId = req.params.bookId;
-  const updatedBody = req.body;
-  const book = await Book.findByIdAndUpdate(bookId, updatedBody, { new: true });
+  try {
+    const bookId = req.params.bookId;
+    validateBookId(bookId);
 
-  res.status(201).json({
-    success: true,
-    message: "note updated",
-    book,
-  });
+    const updatedBody = req.body;
+    const book = await Book.findByIdAndUpdate(bookId, updatedBody, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!book) {
+      throw new AppError("Book not found", 404);
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Book updated successfully",
+      data: book,
+    });
+  } catch (error) {
+    handleError(res, error);
+  }
 });
 
-// delete a book
+// DELETE /api/books/:bookId - Delete a book
 booksRoutes.delete("/:bookId", async (req: Request, res: Response) => {
-  const bookId = req.params.bookId;
+  try {
+    const bookId = req.params.bookId;
+    validateBookId(bookId);
 
-  const book = await Book.findByIdAndDelete(bookId);
+    const book = await Book.findByIdAndDelete(bookId);
+    if (!book) {
+      throw new AppError("Book not found", 404);
+    }
 
-  res.status(201).json({
-    success: true,
-    message: "book deleted",
-    book,
-  });
+    res.status(200).json({
+      success: true,
+      message: "Book deleted successfully",
+      data: null,
+    });
+  } catch (error) {
+    handleError(res, error);
+  }
 });
