@@ -4,14 +4,14 @@ import { handleError, AppError } from "../utils/errorHandleler";
 
 export const booksRoutes = express.Router();
 
-// Helper function to validate book ID
+// validate book ID
 const validateBookId = (bookId: string): void => {
   if (!bookId.match(/^[0-9a-fA-F]{24}$/)) {
     throw new AppError("Invalid book ID format", 400);
   }
 };
 
-// POST /api/books - Create a new book
+// Create a new book
 booksRoutes.post("/", async (req: Request, res: Response) => {
   try {
     const body = req.body;
@@ -27,7 +27,7 @@ booksRoutes.post("/", async (req: Request, res: Response) => {
   }
 });
 
-// GET /api/books - Get all books with filtering
+//   all books with filtering
 booksRoutes.get("/", async (req: Request, res: Response) => {
   try {
     const {
@@ -69,7 +69,8 @@ booksRoutes.get("/", async (req: Request, res: Response) => {
   }
 });
 
-// GET /api/books/:bookId - Get single book by ID
+//  single book 
+
 booksRoutes.get("/:bookId", async (req: Request, res: Response) => {
   try {
     const bookId = req.params.bookId;
@@ -90,7 +91,8 @@ booksRoutes.get("/:bookId", async (req: Request, res: Response) => {
   }
 });
 
-// PUT /api/books/:bookId - Update a book
+//  Update a book
+
 booksRoutes.put("/:bookId", async (req: Request, res: Response) => {
   try {
     const bookId = req.params.bookId;
@@ -116,7 +118,7 @@ booksRoutes.put("/:bookId", async (req: Request, res: Response) => {
   }
 });
 
-// DELETE /api/books/:bookId - Delete a book
+// Delete a book
 booksRoutes.delete("/:bookId", async (req: Request, res: Response) => {
   try {
     const bookId = req.params.bookId;
