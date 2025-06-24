@@ -72,3 +72,45 @@ const borrowHandler: RequestHandler = async (req, res) => {
 };
 
 borrowRoutes.post("/", borrowHandler);
+
+// GET /api/borrow - Borrowed Books Summary (Aggregation)
+const borrowSummaryHandler: RequestHandler = async (req, res) => {
+  try {
+    const summary = await Borrow.aggregate([
+      {
+        $group: {
+          _id: "$book",
+          totalQuantity: { $sum: "$quantity" },
+        },
+      },
+      {
+        $lookup: {
+          from: "books",
+          localField: "_id",
+          foreignField: "_id",
+          as: "bookInfo",
+        },
+      },
+      { $unwind: "$bookInfo" },
+      {
+        $project: {
+          _id: 0,
+          book: {
+            title: "$bookInfo.title",
+            isbn: "$bookInfo.isbn",
+          },
+          totalQuantity: 1,
+        },
+      },
+    ]);
+    res.status(200).json({
+      success: true,
+      message: "Borrowed books summary retrieved successfully",
+      data: summary,
+    });
+  } catch (error) {
+    handleError(res, error);
+  }
+};
+
+borrowRoutes.get("/", borrowSummaryHandler);
