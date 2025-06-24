@@ -1,4 +1,4 @@
-import express, { Request, Response, RequestHandler } from "express";
+import express, {  RequestHandler } from "express";
 import { Book } from "../models/book.model";
 import { Borrow } from "../models/borrow.model";
 import { handleError } from "../utils/errorHandleler";
@@ -6,7 +6,7 @@ import { handleError } from "../utils/errorHandleler";
 const borrowRoutes = express.Router();
 export default borrowRoutes;
 
-// POST /api/borrow
+// POST borrow 
 const borrowHandler: RequestHandler = async (req, res) => {
   try {
     const { book: bookId, quantity, dueDate } = req.body;
@@ -28,7 +28,7 @@ const borrowHandler: RequestHandler = async (req, res) => {
       return;
     }
 
-    // Check book availability
+    //  book availability
     const book = await Book.findById(bookId);
     if (!book) {
       res.status(404).json({
@@ -73,7 +73,7 @@ const borrowHandler: RequestHandler = async (req, res) => {
 
 borrowRoutes.post("/", borrowHandler);
 
-// GET /api/borrow - Borrowed Books Summary (Aggregation)
+//  Borrowed Books Summary 
 const borrowSummaryHandler: RequestHandler = async (req, res) => {
   try {
     const summary = await Borrow.aggregate([
