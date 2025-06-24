@@ -1,8 +1,10 @@
-import { Types } from "mongoose";
+import { Document } from "mongoose";
+import { Schema } from "mongoose";
 
-export interface IBorrow {
-  book: Types.ObjectId;
+export interface IBorrow extends Document {
+  book: Schema.Types.ObjectId;
   quantity: number;
   dueDate: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
-
