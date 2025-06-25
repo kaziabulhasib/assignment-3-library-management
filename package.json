@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "tsnd --respawn src/server.ts"
+    "dev": "tsnd --respawn src/server.ts",
+    "build": "tsc"
   },
   "keywords": [],
   "author": "",
@@ -15,6 +16,7 @@
     "express": "^5.1.0",
     "mongodb": "^6.17.0",
     "mongoose": "^8.16.0",
+    "serverless-http": "^3.2.0",
     "ts-node-dev": "^2.0.0"
   },
   "devDependencies": {
